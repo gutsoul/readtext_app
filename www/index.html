@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, 
+	initial-scale=1, 
+	maximum-scale=1, 
+	minimum-scale=1, 
+	width=device-width, 
+	height=device-height, 
+	target-densitydpi=device-dpi" />
+	<style>
+	body {
+		fond-size: 16px;
+	}
+	input, button {
+		padding: 10px;
+	}
+	</style>
+	<title>ReadFile</title>
+</head>
+<body>
+	<p>讀取文字檔內容Read Text File:</p>
+	<button type="button" onclick="read1();">選擇文字檔Read Text File 1</button>
+	<button type="button" onclick="read2();">選擇文字檔Read Text File 2</button>
+	<div id="toText"></div>
+	<div id="toBase64"></div>
+	
+	<script type="text/javascript" src="phonegap.js"></script>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+	var myfile;
+	document.addEventListener("deviceready", onDeviceReady, false);
+	function onDeviceReady() {
+	};
+	
+	// 按下 [選擇文字檔1] 近入點
+	function read1(){
+		// LocalFileSystem.TEMPORARY 開始位置: file:///storage/sdcard0 目錄
+		// LocalFileSystem.TEMPORARY 開始位置:file:///storage/sdcard0/Android/data/com.phonegap.readtest/cache 目錄
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, GetFile, onfail);
+	};
+	// 按下 [選擇文字檔2] 近入點
+	function read2(){
+		// 利用camera.getPicture方法取得文字檔
+		navigator.camera.getPicture(ChooseFile, function(message) { alert('錯誤err:' + message.code); }, { 
+		destinationType: navigator.camera.DestinationType.FILE_URI,
+		sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY 
+		});
+	};
+	
+	function ChooseFile(fileURI){
+		myfile = fileURI;
+		// 讀取文字檔
+		window.resolveLocalFileSystemURI(myfile, GetFileEntry, onfail);
+	};
+	// 讀取選擇的文字檔
+	function GetFile(fileSystem) {
+		fileSystem.root.getFile("Download/platypus.txt", null, GetFileEntry, onfail);
+	};
+
+	function GetFileEntry(fileEntry) {
+		fileEntry.file(GetFileContent, onfail);
+	};
+
+	function GetFileContent(file){
+		console.log('file');
+		console.log(file);
+		readDataUrl(file);
+		readAsText(file);
+	};
+
+	// 讀取文字檔並回傳BASE64內容
+	function readDataUrl(file) {
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+			$("#toBase64").html(evt.target.result);
+		};
+		reader.readAsDataURL(file);
+	};
+	
+	// 讀取文字檔並回傳文字內容
+	function readAsText(file) {
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+			$("#toText").html(evt.target.result);
+		};
+		reader.readAsText(file);
+	};
+
+	// 錯誤訊息
+	function onfail(error) {
+		console.log(error.code);
+	};
+
+	</script>
+</body>
+</html>
